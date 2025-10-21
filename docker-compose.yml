@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  service_a:
+    build: ./service_a
+    ports:
+      - "8000:8000"
+    environment:
+      - SERVICE_B_URL=http://service_b:8001 # Используем имя сервиса
+    networks:
+      - microservices-network
+
+  service_b:
+    build: ./service_b
+    ports:
+      - "8001:8001"
+    environment:
+      - SERVICE_A_URL=http://service_a:8000
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
