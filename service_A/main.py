@@ -23,7 +23,7 @@ async def process_data():
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(
-                f"{SERVICE_B_URL}/receive-data",  # Используем переменную
+                f"{SERVICE_B_URL}/receive-data", 
                 json=data,
                 timeout=30.0
             )

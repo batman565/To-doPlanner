@@ -1,24 +1,41 @@
 version: "3.8"
 
 services:
-  service_a:
-    build: ./service_a
+  nginx:
+    image: nginx:latest
     ports:
-      - "8000:8000"
-    environment:
-      - SERVICE_B_URL=http://service_b:8001 # Используем имя сервиса
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
       - microservices-network
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+  service_a:
+    image: myapp-service-a
+    environment:
+      - SERVICE_B_URL=http://service_b:8001
+    networks:
+      - microservices-network
+    deploy:
+      replicas: 2
+      endpoint_mode: vip
 
   service_b:
-    build: ./service_b
-    ports:
-      - "8001:8001"
+    image: myapp-service-b
     environment:
       - SERVICE_A_URL=http://service_a:8000
     networks:
       - microservices-network
+    deploy:
+      replicas: 2
+      endpoint_mode: vip
 
 networks:
   microservices-network:
-    driver: bridge
+    driver: overlay
+    attachable: true
